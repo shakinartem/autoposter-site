@@ -1,0 +1,25 @@
+{
+  "name": "spgutils",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "node scripts/astro-run.mjs dev",
+    "build": "node scripts/astro-run.mjs build",
+    "preview": "node scripts/astro-run.mjs preview",
+    "check": "node scripts/astro-run.mjs check",
+    "format": "prettier --write .",
+    "worker:dev": "wrangler dev workers/api/src/index.ts",
+    "worker:deploy": "wrangler deploy workers/api/src/index.ts"
+  },
+  "dependencies": {
+    "astro": "^5.10.0"
+  },
+  "devDependencies": {
+    "@astrojs/check": "^0.9.4",
+    "@types/node": "^22.15.29",
+    "prettier": "^3.5.3",
+    "typescript": "^5.8.3",
+    "wrangler": "^4.13.1"
+  }
+}

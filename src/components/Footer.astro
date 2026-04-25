@@ -1,0 +1,25 @@
+---
+import type { Locale } from '@/lib/routes';
+
+type Props = {
+  locale: Locale;
+};
+
+const { locale } = Astro.props as Props;
+---
+
+<footer class="footer">
+  <div>
+    <p class="footer-brand">SPG Utils</p>
+    <p class="muted">
+      {locale === 'ru'
+        ? 'Платформа утилит для продуктов, review flows и будущих запусков.'
+        : 'Utility platform for products, review flows, and future launches.'}
+    </p>
+  </div>
+  <div class="footer-links">
+    <a href={locale === 'ru' ? '/ru/privacy-policy' : '/privacy-policy'}>Privacy</a>
+    <a href={locale === 'ru' ? '/ru/terms-of-service' : '/terms-of-service'}>Terms</a>
+    <a href={locale === 'ru' ? '/ru/data-deletion' : '/data-deletion'}>Deletion</a>
+  </div>
+</footer>

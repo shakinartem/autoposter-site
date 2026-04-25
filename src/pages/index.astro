@@ -1,0 +1,12 @@
+---
+import Layout from '@/components/Layout.astro';
+import PageRenderer from '@/components/PageRenderer.astro';
+import { getPageContent, getRouteMeta } from '@/content/pages';
+
+const meta = getRouteMeta('home', 'en');
+const page = getPageContent('home', 'en');
+---
+
+<Layout title={meta.title} description={meta.description} locale="en" path={meta.path} canonical={meta.canonical}>
+  <PageRenderer page={page} />
+</Layout>

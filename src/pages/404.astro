@@ -1,0 +1,20 @@
+---
+import Layout from '@/components/Layout.astro';
+import PageRenderer from '@/components/PageRenderer.astro';
+
+const page = {
+  title: '404 | SPG Utils',
+  description: 'Page not found.',
+  hero: {
+    eyebrow: '404',
+    title: 'That page does not exist.',
+    lead: 'Use the main navigation to get back to the product pages, review flows, or legal documents.',
+    primary: { label: 'Home', href: '/' },
+    secondary: { label: 'Products', href: '/products', variant: 'secondary' as const }
+  }
+};
+---
+
+<Layout title="404 | SPG Utils" description="Page not found." locale="en" path="404" canonical="https://spgutils.ru/404" noindex={true}>
+  <PageRenderer page={page} />
+</Layout>

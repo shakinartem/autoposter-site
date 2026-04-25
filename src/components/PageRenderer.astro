@@ -1,0 +1,223 @@
+---
+import type { PageContent } from '@/content/pages';
+
+type Props = {
+  page: PageContent;
+};
+
+const { page } = Astro.props as Props;
+---
+
+<section class="hero">
+  {page.hero ? (
+    <>
+      <p class="eyebrow">{page.hero.eyebrow}</p>
+      <h1>{page.hero.title}</h1>
+      <p class="lead">{page.hero.lead}</p>
+      <div class="hero-actions">
+        <a class="button primary" href={page.hero.primary.href}>{page.hero.primary.label}</a>
+        {page.hero.secondary ? (
+          <a class="button secondary" href={page.hero.secondary.href}>{page.hero.secondary.label}</a>
+        ) : null}
+      </div>
+      {page.hero.note ? <p class="note">{page.hero.note}</p> : null}
+    </>
+  ) : null}
+</section>
+
+{page.stats ? (
+  <section class="section">
+    <div class="stats-grid">
+      {page.stats.map((item) => (
+        <article class="stat-card">
+          <span>{item.label}</span>
+          <strong>{item.value}</strong>
+          {item.detail ? <p>{item.detail}</p> : null}
+        </article>
+      ))}
+    </div>
+  </section>
+) : null}
+
+{page.spotlights ? (
+  <section class="section">
+    <div class="cards-grid spotlight-grid">
+      {page.spotlights.map((item) => (
+        <a class="panel link-card spotlight-card" href={item.href}>
+          <span class="chip">Review hub</span>
+          <h2>{item.title}</h2>
+          <p>{item.body}</p>
+          <span>{item.label}</span>
+        </a>
+      ))}
+    </div>
+  </section>
+) : null}
+
+{page.features ? (
+  <section class="section">
+    <div class="cards-grid">
+      {page.features.map((item) => (
+        <article class="panel">
+          {item.tag ? <span class="chip">{item.tag}</span> : null}
+          <h2>{item.title}</h2>
+          <p>{item.body}</p>
+        </article>
+      ))}
+    </div>
+  </section>
+) : null}
+
+{page.cards ? (
+  <section class="section">
+    <div class="cards-grid">
+      {page.cards.map((item) => (
+        <a class="panel link-card" href={item.href}>
+          <h2>{item.title}</h2>
+          <p>{item.body}</p>
+          <span>{item.label}</span>
+        </a>
+      ))}
+    </div>
+  </section>
+) : null}
+
+{page.steps ? (
+  <section class="section">
+    <div class="timeline">
+      {page.steps.map((item, index) => (
+        <article class="timeline-item">
+          <span class="timeline-index">0{index + 1}</span>
+          <div>
+            <h2>{item.title}</h2>
+            <p>{item.body}</p>
+          </div>
+        </article>
+      ))}
+    </div>
+  </section>
+) : null}
+
+{page.matrix ? (
+  <section class="section">
+    <div class="panel">
+      <h2>Platform matrix</h2>
+      <div class="matrix">
+        <div class="matrix-head">
+          <span>Platform</span>
+          <span>Supported</span>
+          <span>In progress</span>
+          <span>Planned</span>
+        </div>
+        {page.matrix.map((row) => (
+          <div class="matrix-row">
+            <strong>{row.name}</strong>
+            <span>{row.supported}</span>
+            <span>{row.inProgress}</span>
+            <span>{row.planned}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+) : null}
+
+{page.review ? (
+  <section class="section">
+    <div class="review-grid">
+      <article class="panel">
+        <h2>The use case</h2>
+        <p>{page.review.problem}</p>
+      </article>
+      <article class="panel">
+        <h2>Requested permissions</h2>
+        <ul class="clean-list">
+          {page.review.permissions.map((item) => <li>{item}</li>)}
+        </ul>
+      </article>
+      <article class="panel">
+        <h2>Flow</h2>
+        <ul class="clean-list">
+          {page.review.flow.map((item) => <li>{item}</li>)}
+        </ul>
+      </article>
+      <article class="panel">
+        <h2>Safe capabilities</h2>
+        <ul class="clean-list">
+          {page.review.capabilities.map((item) => <li>{item}</li>)}
+        </ul>
+      </article>
+      <article class="panel span-2">
+        <h2>Review notes</h2>
+        <ul class="clean-list">
+          {page.review.notes.map((item) => <li>{item}</li>)}
+        </ul>
+      </article>
+    </div>
+  </section>
+) : null}
+
+{page.article ? (
+  <section class="section article">
+    {page.article.map((block) => (
+      <article class="panel">
+        <h2>{block.heading}</h2>
+        {block.body.map((paragraph) => <p>{paragraph}</p>)}
+        {block.bullets ? (
+          <ul class="clean-list">
+            {block.bullets.map((bullet) => <li>{bullet}</li>)}
+          </ul>
+        ) : null}
+      </article>
+    ))}
+  </section>
+) : null}
+
+{page.checklist ? (
+  <section class="section">
+    <div class="cards-grid">
+      {page.checklist.map((item) => (
+        <article class="panel">
+          <h2>{item.title}</h2>
+          <ul class="clean-list">
+            {item.items.map((check) => <li>{check}</li>)}
+          </ul>
+        </article>
+      ))}
+    </div>
+  </section>
+) : null}
+
+{page.status ? (
+  <section class="section">
+    <div class="status-grid">
+      {page.status.map((item) => (
+        <article class={`status-card tone-${item.tone}`}>
+          <span>{item.label}</span>
+          <strong>{item.value}</strong>
+        </article>
+      ))}
+    </div>
+  </section>
+) : null}
+
+{page.faq ? (
+  <section class="section">
+    <div class="faq-stack">
+      {page.faq.map((item) => (
+        <details class="panel">
+          <summary>{item.q}</summary>
+          <p>{item.a}</p>
+        </details>
+      ))}
+    </div>
+  </section>
+) : null}
+
+{page.footerNote ? (
+  <section class="section">
+    <div class="panel subtle">
+      <p>{page.footerNote}</p>
+    </div>
+  </section>
+) : null}

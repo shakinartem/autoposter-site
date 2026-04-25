@@ -1,0 +1,64 @@
+---
+import '../styles/global.css';
+import type { Locale } from '@/lib/routes';
+import { manifestByPath } from '@/lib/route-manifest';
+import { routePaths } from '@/lib/routes';
+import Header from './Header.astro';
+import Footer from './Footer.astro';
+
+type Props = {
+  title: string;
+  description: string;
+  locale: Locale;
+  path: string;
+  canonical: string;
+  noindex?: boolean;
+};
+
+const { title, description, locale, path, canonical, noindex } = Astro.props as Props;
+const alternateLocale: Locale = locale === 'en' ? 'ru' : 'en';
+const siteUrl = import.meta.env.PUBLIC_SITE_URL ?? 'https://spgutils.ru';
+const currentHref = path ? `/${path}` : '/';
+const currentEntry = manifestByPath.get(path || '/');
+const reviewPageHref = (targetLocale: Locale) => (targetLocale === 'ru' ? '/ru/review' : '/review');
+const alternateRoute = currentEntry
+  ? routePaths[alternateLocale][currentEntry.key]
+  : path.endsWith('/review')
+    ? reviewPageHref(alternateLocale).slice(1)
+    : alternateLocale === 'ru'
+      ? 'ru'
+      : '';
+const alternateHref = alternateRoute ? `/${alternateRoute}` : '/';
+const switchHref = alternateHref;
+---
+
+<!doctype html>
+<html lang={locale}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="generator" content={Astro.generator} />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <meta name="theme-color" content="#0a0d12" />
+    {noindex ? <meta name="robots" content="noindex, nofollow" /> : null}
+    <link rel="canonical" href={canonical} />
+    <link rel="alternate" hreflang={locale} href={`${siteUrl}${currentHref}`} />
+    <link rel="alternate" hreflang={alternateLocale} href={`${siteUrl}${alternateHref}`} />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:site_name" content="SPG Utils" />
+  </head>
+  <body>
+    <div class="shell">
+      <Header locale={locale} path={path} switchHref={switchHref} />
+      <main class="main">
+        <slot />
+      </main>
+      <Footer locale={locale} />
+    </div>
+  </body>
+</html>

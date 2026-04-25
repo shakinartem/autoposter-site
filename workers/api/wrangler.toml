@@ -1,0 +1,19 @@
+name = "spgutils-api"
+main = "src/index.ts"
+compatibility_date = "2025-04-23"
+
+[vars]
+APP_NAME = "SPG Utils"
+
+[[kv_namespaces]]
+binding = "OAUTH_STATE_KV"
+id = "replace-me"
+
+[[kv_namespaces]]
+binding = "OAUTH_SESSION_KV"
+id = "replace-me"
+
+[[d1_databases]]
+binding = "APP_LINKS_D1"
+database_name = "spgutils_links"
+database_id = "replace-me"

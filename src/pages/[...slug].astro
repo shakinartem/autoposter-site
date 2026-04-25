@@ -1,0 +1,38 @@
+---
+import Layout from '@/components/Layout.astro';
+import PageRenderer from '@/components/PageRenderer.astro';
+import { getPageContent, getRouteMeta } from '@/content/pages';
+import { manifest } from '@/lib/route-manifest';
+
+export function getStaticPaths() {
+  return manifest
+    .filter((entry) => entry.path !== '')
+    .map((entry) => ({
+      params: { slug: entry.path },
+      props: {
+        key: entry.key,
+        locale: entry.locale,
+        path: entry.path,
+        title: entry.title,
+        description: entry.description,
+        noindex: entry.noindex ?? false
+      }
+    }));
+}
+
+const { key, locale, path, title, description, noindex } = Astro.props as {
+  key: Parameters<typeof getPageContent>[0];
+  locale: 'en' | 'ru';
+  path: string;
+  title: string;
+  description: string;
+  noindex?: boolean;
+};
+
+const page = getPageContent(key, locale);
+const meta = getRouteMeta(key, locale);
+---
+
+<Layout title={title ?? meta.title} description={description ?? meta.description} locale={locale} path={path} canonical={meta.canonical} noindex={noindex}>
+  <PageRenderer page={page} />
+</Layout>

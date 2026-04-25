@@ -1,0 +1,22 @@
+---
+import Layout from '@/components/Layout.astro';
+import ReviewPage from '@/components/ReviewPage.astro';
+
+const successPlatform =
+  Astro.url.searchParams.get('tiktok') === 'success'
+    ? 'tiktok'
+    : Astro.url.searchParams.get('meta') === 'success'
+      ? 'meta'
+      : null;
+---
+
+<Layout
+  title="Review | SPG Utils"
+  description="Connect TikTok or Meta, confirm success, and return to the bot."
+  locale="en"
+  path="review"
+  canonical="https://spgutils.ru/review"
+  noindex={true}
+>
+  <ReviewPage locale="en" successPlatform={successPlatform} />
+</Layout>

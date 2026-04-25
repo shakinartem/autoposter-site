@@ -1,0 +1,156 @@
+---
+type Locale = 'en' | 'ru';
+type Platform = 'tiktok' | 'meta';
+
+type Props = {
+  locale: Locale;
+  successPlatform?: Platform | null;
+};
+
+const { locale, successPlatform = null } = Astro.props as Props;
+
+const apiBaseUrl = 'https://api.spgutils.ru';
+const connectUrls: Record<Platform, string> = {
+  tiktok: `${apiBaseUrl}/api/oauth/tiktok/start`,
+  meta: `${apiBaseUrl}/api/oauth/meta/start`
+};
+
+const labels = {
+  en: {
+    eyebrow: 'Review connection',
+    title: 'Connect TikTok or Meta, then return to the bot.',
+    lead:
+      'OAuth starts on the API domain, tokens stay on the server, and this page only confirms that the account was connected successfully.',
+    success: {
+      tiktok: 'TikTok connected successfully.',
+      meta: 'Meta connected successfully.'
+    },
+    cards: {
+      tiktok: {
+        title: 'TikTok',
+        body: 'Open the server-side OAuth flow for TikTok and finish the connection in the provider UI.',
+        button: 'Connect TikTok'
+      },
+      meta: {
+        title: 'Meta',
+        body: 'Open the server-side OAuth flow for Meta and finish the connection in the provider UI.',
+        button: 'Connect Meta'
+      }
+    },
+    steps: [
+      'Click a connect button on this page.',
+      'Complete OAuth on `api.spgutils.ru`.',
+      'Return here to see the successful connection message and continue in Telegram.'
+    ],
+    notes: [
+      'No client secret is placed in the frontend.',
+      'Tokens are stored server-side in the Worker or D1.',
+      'This page is only for OAuth entry, review confirmation, and legal links.'
+    ],
+    links: [
+      { label: 'Privacy policy', href: '/privacy-policy' },
+      { label: 'Terms', href: '/terms-of-service' },
+      { label: 'Data deletion', href: '/data-deletion' }
+    ]
+  },
+  ru: {
+    eyebrow: 'Review connection',
+    title: 'Подключите TikTok или Meta, а затем вернитесь в бота.',
+    lead:
+      'OAuth запускается на API-домене, токены остаются на сервере, а эта страница только подтверждает успешное подключение аккаунта.',
+    success: {
+      tiktok: 'TikTok успешно подключён.',
+      meta: 'Meta успешно подключён.'
+    },
+    cards: {
+      tiktok: {
+        title: 'TikTok',
+        body: 'Откройте server-side OAuth flow для TikTok и завершите подключение в интерфейсе провайдера.',
+        button: 'Connect TikTok'
+      },
+      meta: {
+        title: 'Meta',
+        body: 'Откройте server-side OAuth flow для Meta и завершите подключение в интерфейсе провайдера.',
+        button: 'Connect Meta'
+      }
+    },
+    steps: [
+      'Нажмите кнопку подключения на этой странице.',
+      'Завершите OAuth на `api.spgutils.ru`.',
+      'Вернитесь сюда, чтобы увидеть успешное подключение и продолжить в Telegram.'
+    ],
+    notes: [
+      'Client secret не попадает во frontend.',
+      'Токены хранятся только на сервере в Worker или D1.',
+      'Эта страница нужна только для входа в OAuth, подтверждения review и legal-ссылок.'
+    ],
+    links: [
+      { label: 'Privacy policy', href: '/ru/privacy-policy' },
+      { label: 'Terms', href: '/ru/terms-of-service' },
+      { label: 'Data deletion', href: '/ru/data-deletion' }
+    ]
+  }
+} as const;
+
+const text = labels[locale];
+const successMessage = successPlatform ? text.success[successPlatform] : null;
+---
+
+<section class="hero review-hero">
+  <p class="eyebrow">{text.eyebrow}</p>
+  <h1>{text.title}</h1>
+  <p class="lead">{text.lead}</p>
+  {successMessage ? (
+    <div class="panel review-banner">
+      <span class="chip">Success</span>
+      <h2>{successMessage}</h2>
+      <p>
+        {locale === 'ru'
+          ? 'Можно закрыть вкладку и вернуться в Telegram bot, где уже должен появиться подключённый аккаунт.'
+          : 'You can close this tab and return to Telegram bot, where the connected account should now be available.'}
+      </p>
+    </div>
+  ) : null}
+</section>
+
+<section class="section">
+  <div class="review-actions">
+    <article class="panel review-card">
+      <span class="chip">TikTok</span>
+      <h2>{text.cards.tiktok.title}</h2>
+      <p>{text.cards.tiktok.body}</p>
+      <a class="button primary" href={connectUrls.tiktok}>{text.cards.tiktok.button}</a>
+    </article>
+    <article class="panel review-card">
+      <span class="chip">Meta</span>
+      <h2>{text.cards.meta.title}</h2>
+      <p>{text.cards.meta.body}</p>
+      <a class="button primary" href={connectUrls.meta}>{text.cards.meta.button}</a>
+    </article>
+  </div>
+</section>
+
+<section class="section">
+  <div class="cards-grid review-grid">
+    <article class="panel">
+      <h2>{locale === 'ru' ? 'Как это работает' : 'How it works'}</h2>
+      <ul class="clean-list">
+        {text.steps.map((item) => <li>{item}</li>)}
+      </ul>
+    </article>
+    <article class="panel">
+      <h2>{locale === 'ru' ? 'Безопасность' : 'Safety'}</h2>
+      <ul class="clean-list">
+        {text.notes.map((item) => <li>{item}</li>)}
+      </ul>
+    </article>
+  </div>
+</section>
+
+<section class="section">
+  <div class="panel subtle review-links">
+    {text.links.map((item) => (
+      <a href={item.href}>{item.label}</a>
+    ))}
+  </div>
+</section>

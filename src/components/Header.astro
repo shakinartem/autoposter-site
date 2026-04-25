@@ -1,0 +1,33 @@
+---
+import type { Locale } from '@/lib/routes';
+import { localeLabels, routePaths } from '@/lib/routes';
+
+type Props = {
+  locale: Locale;
+  path: string;
+  switchHref: string;
+};
+
+const { locale, switchHref } = Astro.props as Props;
+const switchLocale: Locale = locale === 'en' ? 'ru' : 'en';
+const reviewHref = locale === 'ru' ? '/ru/review' : '/review';
+const nav = [
+  { label: locale === 'ru' ? 'Продукты' : 'Products', href: `/${routePaths[locale].products}` },
+  { label: locale === 'ru' ? 'Статус' : 'Status', href: `/${routePaths[locale].status}` },
+  { label: locale === 'ru' ? 'Контакты' : 'Contact', href: `/${routePaths[locale].contact}` },
+  { label: 'Review', href: reviewHref }
+];
+---
+
+<header class="header">
+  <a class="brand" href={locale === 'ru' ? '/ru' : '/'}>
+    <span class="brand-mark">SPG</span>
+    <span class="brand-copy">Utils</span>
+  </a>
+  <nav class="nav" aria-label="Primary">
+    {nav.map((item) => <a href={item.href}>{item.label}</a>)}
+  </nav>
+  <a class="locale-switch" href={switchHref} aria-label={`Switch language to ${localeLabels[switchLocale]}`}>
+    {localeLabels[switchLocale]}
+  </a>
+</header>
