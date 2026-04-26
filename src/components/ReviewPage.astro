@@ -10,6 +10,9 @@ type Props = {
 const { locale, successPlatform = null } = Astro.props as Props;
 
 const apiBaseUrl = 'https://api.spgutils.ru';
+const botUsername = import.meta.env.PUBLIC_TELEGRAM_BOT_USERNAME ?? '<BOT_USERNAME>';
+const telegramBotUrl = botUsername && !botUsername.startsWith('<') ? `https://t.me/${botUsername}` : 'https://t.me/';
+
 const connectUrls: Record<Platform, string> = {
   tiktok: `${apiBaseUrl}/api/oauth/tiktok/start`,
   meta: `${apiBaseUrl}/api/oauth/meta/start`
@@ -18,34 +21,43 @@ const connectUrls: Record<Platform, string> = {
 const labels = {
   en: {
     eyebrow: 'Review connection',
-    title: 'Connect TikTok or Meta, then return to the bot.',
+    title: 'Review OAuth entry for TikTok and Meta.',
     lead:
-      'OAuth starts on the API domain, tokens stay on the server, and this page only confirms that the account was connected successfully.',
+      'For working account linking, use the Telegram bot. These buttons are for review and testing flow only.',
     success: {
-      tiktok: 'TikTok connected successfully.',
-      meta: 'Meta connected successfully.'
+      tiktok:
+        'TikTok connected successfully. Authorization successful. If you started from Telegram, return to the bot to continue.',
+      meta:
+        'Meta connected successfully. Authorization successful. If you started from Telegram, return to the bot to continue.'
     },
-    cards: {
+    botCta: 'Open Telegram Bot',
+    reviewCards: {
       tiktok: {
         title: 'TikTok',
-        body: 'Open the server-side OAuth flow for TikTok and finish the connection in the provider UI.',
+        body: 'Open the server-side OAuth flow for TikTok and finish the review/testing connection.',
         button: 'Connect TikTok'
       },
       meta: {
         title: 'Meta',
-        body: 'Open the server-side OAuth flow for Meta and finish the connection in the provider UI.',
+        body: 'Open the server-side OAuth flow for Meta and finish the review/testing connection.',
         button: 'Connect Meta'
       }
     },
-    steps: [
-      'Click a connect button on this page.',
-      'Complete OAuth on `api.spgutils.ru`.',
-      'Return here to see the successful connection message and continue in Telegram.'
-    ],
+    linking: {
+      title: 'How account linking works',
+      items: [
+        'Open the Telegram bot.',
+        'Choose Add account.',
+        'Select TikTok or Meta.',
+        'Complete OAuth authorization.',
+        'Return to Telegram automatically.',
+        'Manage publishing from the bot.'
+      ]
+    },
     notes: [
       'No client secret is placed in the frontend.',
-      'Tokens are stored server-side in the Worker or D1.',
-      'This page is only for OAuth entry, review confirmation, and legal links.'
+      'Tokens stay server-side in the Worker or D1.',
+      'The site is only for review, testing, and legal pages.'
     ],
     links: [
       { label: 'Privacy policy', href: '/privacy-policy' },
@@ -55,34 +67,43 @@ const labels = {
   },
   ru: {
     eyebrow: 'Review connection',
-    title: 'Подключите TikTok или Meta, а затем вернитесь в бота.',
+    title: 'Review OAuth entry для TikTok и Meta.',
     lead:
-      'OAuth запускается на API-домене, токены остаются на сервере, а эта страница только подтверждает успешное подключение аккаунта.',
+      'Для рабочего подключения аккаунта используйте Telegram bot. Эти кнопки предназначены для review/testing flow.',
     success: {
-      tiktok: 'TikTok успешно подключён.',
-      meta: 'Meta успешно подключён.'
+      tiktok:
+        'TikTok успешно подключён. Authorization successful. If you started from Telegram, return to the bot to continue.',
+      meta:
+        'Meta успешно подключён. Authorization successful. If you started from Telegram, return to the bot to continue.'
     },
-    cards: {
+    botCta: 'Открыть Telegram-бота',
+    reviewCards: {
       tiktok: {
         title: 'TikTok',
-        body: 'Откройте server-side OAuth flow для TikTok и завершите подключение в интерфейсе провайдера.',
+        body: 'Откройте server-side OAuth flow для TikTok и завершите review/testing подключение.',
         button: 'Connect TikTok'
       },
       meta: {
         title: 'Meta',
-        body: 'Откройте server-side OAuth flow для Meta и завершите подключение в интерфейсе провайдера.',
+        body: 'Откройте server-side OAuth flow для Meta и завершите review/testing подключение.',
         button: 'Connect Meta'
       }
     },
-    steps: [
-      'Нажмите кнопку подключения на этой странице.',
-      'Завершите OAuth на `api.spgutils.ru`.',
-      'Вернитесь сюда, чтобы увидеть успешное подключение и продолжить в Telegram.'
-    ],
+    linking: {
+      title: 'Как работает подключение аккаунта',
+      items: [
+        'Откройте Telegram-бота.',
+        'Нажмите Добавить аккаунт.',
+        'Выберите TikTok или Meta.',
+        'Пройдите OAuth-авторизацию.',
+        'Вернитесь в Telegram автоматически.',
+        'Управляйте публикациями из бота.'
+      ]
+    },
     notes: [
       'Client secret не попадает во frontend.',
-      'Токены хранятся только на сервере в Worker или D1.',
-      'Эта страница нужна только для входа в OAuth, подтверждения review и legal-ссылок.'
+      'Токены остаются только на сервере в Worker или D1.',
+      'Сайт нужен только для review, testing и legal-страниц.'
     ],
     links: [
       { label: 'Privacy policy', href: '/ru/privacy-policy' },
@@ -100,15 +121,13 @@ const successMessage = successPlatform ? text.success[successPlatform] : null;
   <p class="eyebrow">{text.eyebrow}</p>
   <h1>{text.title}</h1>
   <p class="lead">{text.lead}</p>
+  <div class="hero-actions">
+    <a class="button primary" href={telegramBotUrl}>{text.botCta}</a>
+  </div>
   {successMessage ? (
     <div class="panel review-banner">
       <span class="chip">Success</span>
       <h2>{successMessage}</h2>
-      <p>
-        {locale === 'ru'
-          ? 'Можно закрыть вкладку и вернуться в Telegram bot, где уже должен появиться подключённый аккаунт.'
-          : 'You can close this tab and return to Telegram bot, where the connected account should now be available.'}
-      </p>
     </div>
   ) : null}
 </section>
@@ -117,15 +136,15 @@ const successMessage = successPlatform ? text.success[successPlatform] : null;
   <div class="review-actions">
     <article class="panel review-card">
       <span class="chip">TikTok</span>
-      <h2>{text.cards.tiktok.title}</h2>
-      <p>{text.cards.tiktok.body}</p>
-      <a class="button primary" href={connectUrls.tiktok}>{text.cards.tiktok.button}</a>
+      <h2>{text.reviewCards.tiktok.title}</h2>
+      <p>{text.reviewCards.tiktok.body}</p>
+      <a class="button primary" href={connectUrls.tiktok}>{text.reviewCards.tiktok.button}</a>
     </article>
     <article class="panel review-card">
       <span class="chip">Meta</span>
-      <h2>{text.cards.meta.title}</h2>
-      <p>{text.cards.meta.body}</p>
-      <a class="button primary" href={connectUrls.meta}>{text.cards.meta.button}</a>
+      <h2>{text.reviewCards.meta.title}</h2>
+      <p>{text.reviewCards.meta.body}</p>
+      <a class="button primary" href={connectUrls.meta}>{text.reviewCards.meta.button}</a>
     </article>
   </div>
 </section>
@@ -133,9 +152,9 @@ const successMessage = successPlatform ? text.success[successPlatform] : null;
 <section class="section">
   <div class="cards-grid review-grid">
     <article class="panel">
-      <h2>{locale === 'ru' ? 'Как это работает' : 'How it works'}</h2>
+      <h2>{text.linking.title}</h2>
       <ul class="clean-list">
-        {text.steps.map((item) => <li>{item}</li>)}
+        {text.linking.items.map((item) => <li>{item}</li>)}
       </ul>
     </article>
     <article class="panel">

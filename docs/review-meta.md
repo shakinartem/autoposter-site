@@ -4,6 +4,7 @@
 
 - English default route loads at `/`
 - Review landing page opens at `/review?meta=success`
+- Telegram bot is the main account-linking interface
 - Connect Meta button starts OAuth at `https://api.spgutils.ru/api/oauth/meta/start`
 - Successful return lands back on `/review`
 
@@ -13,6 +14,7 @@
 - OAuth login entry point that routes to the Worker
 - Permissions explanation that matches actual behavior
 - Dashboard with safe connected-account state
+- Main CTA to open the Telegram bot
 - Legal links and data deletion path
 
 ## Backend checks

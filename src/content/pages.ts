@@ -624,6 +624,7 @@ const privacy: PageBundle = {
         heading: 'Information we collect',
         body: [
           'OAuth authorization codes, access tokens, refresh tokens, scopes, expiry metadata, and account identifiers required to connect an account.',
+          'Telegram user IDs when an account is linked through the Telegram bot.',
           'Support messages that you send by email or through future contact channels.',
           'Operational logs that help us diagnose platform issues, security events, and callback failures.'
         ]
@@ -632,6 +633,7 @@ const privacy: PageBundle = {
         heading: 'How we use it',
         body: [
           'To complete OAuth flows, maintain connected account status, and show non-sensitive status information on review dashboards.',
+          'To associate a Telegram user with connected OAuth accounts when the bot is used as the main management interface.',
           'To respond to support requests and operate the service safely.',
           'To fulfill data deletion requests and preserve compliance records where required by law.'
         ]
@@ -640,6 +642,7 @@ const privacy: PageBundle = {
         heading: 'Storage and retention',
         body: [
           'Tokens and account metadata are stored server-side only, using Cloudflare storage bindings and Worker secrets for encryption-related material.',
+          'Telegram user linkage records are stored only as needed to operate the bot-driven account management flow.',
           'Ephemeral OAuth state is retained only long enough to complete the flow.',
           'Connected account records are retained while the account is active or until deletion is requested.'
         ]
@@ -671,6 +674,7 @@ const privacy: PageBundle = {
         heading: 'Какие данные мы собираем',
         body: [
           'Authorization code OAuth, access tokens, refresh tokens, scopes, expiry metadata и account identifiers, необходимые для подключения аккаунта.',
+          'Telegram user IDs, если аккаунт подключается через Telegram bot.',
           'Сообщения в поддержку, отправленные по email или через будущие каналы связи.',
           'Операционные логи, помогающие диагностировать проблемы платформы, события безопасности и ошибки callback.'
         ]
@@ -679,6 +683,7 @@ const privacy: PageBundle = {
         heading: 'Как мы это используем',
         body: [
           'Для завершения OAuth flow, поддержания статуса подключённого аккаунта и показа безопасной статус-информации на review dashboard.',
+          'Для связывания Telegram user id с подключёнными OAuth-аккаунтами, когда бот используется как основная панель управления.',
           'Для ответа на запросы в поддержку и безопасной работы сервиса.',
           'Для выполнения запросов на удаление данных и хранения обязательной compliance-истории, если этого требует закон.'
         ]
@@ -687,6 +692,7 @@ const privacy: PageBundle = {
         heading: 'Хранение и сроки',
         body: [
           'Токены и account metadata хранятся только на сервере, с использованием storage bindings Cloudflare и Worker secrets для материалов, связанных с шифрованием.',
+          'Связки Telegram user id с подключёнными аккаунтами хранятся только настолько долго, насколько это нужно для bot-driven flow.',
           'Временное OAuth state живёт только столько, сколько нужно для завершения flow.',
           'Записи о подключённом аккаунте сохраняются пока аккаунт активен или до запроса на удаление.'
         ]
@@ -720,7 +726,8 @@ const terms: PageBundle = {
       {
         heading: 'Scope of service',
         body: [
-          'SPG Utils provides a public website, product pages, and serverless OAuth and deletion endpoints for connected tools.',
+          'SPG Utils provides a public website, OAuth connection and posting workflow tools, and deletion endpoints for connected tools.',
+          'Telegram bot is used as the main management interface for active account linking and publishing operations.',
           'Any future subscription, dashboard, or access-control features may be introduced as separate product layers.'
         ]
       },
@@ -763,7 +770,8 @@ const terms: PageBundle = {
       {
         heading: 'Scope сервиса',
         body: [
-          'SPG Utils предоставляет публичный сайт, страницы продуктов и serverless OAuth/data deletion endpoints для подключаемых инструментов.',
+          'SPG Utils предоставляет публичный сайт, OAuth connection and posting workflow tools, а также endpoints для удаления данных подключаемых инструментов.',
+          'Telegram bot используется как основная панель управления для активного подключения аккаунтов и публикаций.',
           'Любые будущие функции подписки, dashboard или access-control могут быть добавлены отдельным слоем продукта.'
         ]
       },

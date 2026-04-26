@@ -59,7 +59,7 @@ npm run build
 1. Connect the repository to Cloudflare Pages.
 2. Set build command to `npm run build`.
 3. Set build output directory to `dist`.
-4. Add the `PUBLIC_*` environment variables.
+4. Add the `PUBLIC_*` environment variables, including `PUBLIC_TELEGRAM_BOT_USERNAME` for the review CTA.
 5. Deploy the static site.
 
 ### Cloudflare Worker

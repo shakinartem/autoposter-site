@@ -4,6 +4,7 @@
 
 - English default route loads at `/`
 - Review landing page opens at `/review?tiktok=success`
+- Telegram bot is the main account-linking interface
 - Connect TikTok button starts OAuth at `https://api.spgutils.ru/api/oauth/tiktok/start`
 - Successful return lands back on `/review`
 
@@ -13,6 +14,7 @@
 - OAuth login entry point that routes to the Worker
 - Callback handling explanation
 - Dashboard with safe connected-account state
+- Main CTA to open the Telegram bot
 - No access token or client secret in browser UI
 
 ## Backend checks
