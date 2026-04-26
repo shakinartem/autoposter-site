@@ -4,6 +4,7 @@ type PlatformName = 'tiktok' | 'meta';
 
 type Env = {
   APP_NAME: string;
+  BOT_API_KEY?: string;
   OAUTH_STATE_KV: KVNamespace;
   OAUTH_SESSION_KV: KVNamespace;
   APP_LINKS_D1: D1Database;
@@ -36,6 +37,47 @@ type OAuthTokenResponse = {
     refresh_token?: string;
     expires_in?: number;
     scope?: string;
+  };
+  [key: string]: unknown;
+};
+
+type MetaConnectionRow = {
+  id: number;
+  platform: string;
+  provider_user_id: string | null;
+  display_name: string | null;
+  scopes: string;
+  access_token_enc: string;
+  refresh_token_enc: string | null;
+  expires_at: string | null;
+  status: string;
+  metadata_json: string | null;
+  created_at: string;
+  updated_at: string;
+};
+
+type MetaDebugTokenResponse = {
+  data?: {
+    is_valid?: boolean;
+    granular_scopes?: Array<{
+      scope?: string;
+      target_ids?: string[];
+    }>;
+    [key: string]: unknown;
+  };
+  [key: string]: unknown;
+};
+
+type MetaPageResponse = {
+  id?: string;
+  name?: string;
+  access_token?: string;
+  tasks?: string[];
+  instagram_business_account?: {
+    id?: string;
+    username?: string;
+    name?: string;
+    profile_picture_url?: string;
   };
   [key: string]: unknown;
 };
@@ -81,6 +123,15 @@ const encryptValue = async (secret: string | undefined, value: string) => {
   payload.set(iv, 0);
   payload.set(new Uint8Array(encrypted), iv.length);
   return btoa(String.fromCharCode(...payload));
+};
+
+const decryptValue = async (secret: string | undefined, value: string) => {
+  const key = await getKey(secret);
+  const bytes = Uint8Array.from(atob(value), (char) => char.charCodeAt(0));
+  const iv = bytes.slice(0, 12);
+  const payload = bytes.slice(12);
+  const decrypted = await crypto.subtle.decrypt({ name: 'AES-GCM', iv }, key, payload);
+  return new TextDecoder().decode(decrypted);
 };
 
 const baseUrlFor = (platform: PlatformName, env: Env) => {
@@ -134,6 +185,92 @@ const postForm = async (url: string, form: URLSearchParams) =>
     headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
     body: form.toString()
   });
+
+const graphBaseUrl = 'https://graph.facebook.com/v25.0';
+
+const graphGet = async (path: string, accessToken: string, params: Record<string, string | number | undefined> = {}) => {
+  const url = new URL(`${graphBaseUrl}${path}`);
+  url.searchParams.set('access_token', accessToken);
+
+  for (const [key, value] of Object.entries(params)) {
+    if (value !== undefined && value !== null && value !== '') {
+      url.searchParams.set(key, String(value));
+    }
+  }
+
+  const response = await fetch(url.toString());
+  const data = await response.json().catch(() => ({}));
+
+  if (!response.ok) {
+    throw new Error(`Graph API request failed for ${path}`);
+  }
+
+  return data as Record<string, unknown>;
+};
+
+const getConnectionById = async (env: Env, id: number) => {
+  const row = await env.APP_LINKS_D1.prepare(
+    `SELECT id, platform, provider_user_id, display_name, scopes, access_token_enc, refresh_token_enc, expires_at, status, metadata_json, created_at, updated_at
+     FROM linked_accounts WHERE id = ? LIMIT 1`
+  )
+    .bind(id)
+    .first<MetaConnectionRow>();
+
+  if (!row) {
+    return null;
+  }
+
+  const accessToken = await decryptValue(env.OAUTH_ENCRYPTION_SECRET, row.access_token_enc);
+
+  return {
+    ...row,
+    accessToken,
+    metadata: row.metadata_json ? (JSON.parse(row.metadata_json) as Record<string, unknown>) : null
+  };
+};
+
+const getMetaTargetPageIdsFromDebugToken = (debugResponse: MetaDebugTokenResponse) => {
+  const granularScopes = debugResponse.data?.granular_scopes ?? [];
+  const targetIds = new Set<string>();
+
+  for (const scope of granularScopes) {
+    for (const targetId of scope.target_ids ?? []) {
+      if (targetId) {
+        targetIds.add(String(targetId));
+      }
+    }
+  }
+
+  return [...targetIds];
+};
+
+const fetchMetaPageById = async (pageId: string, accessToken: string) => {
+  const params = {
+    fields: 'id,name,access_token,tasks,instagram_business_account{id,username,name,profile_picture_url}'
+  };
+  const data = await graphGet(`/${pageId}`, accessToken, params);
+  return data as MetaPageResponse;
+};
+
+const requireBotAuth = (request: Request, env: Env) => {
+  const expected = env.BOT_API_KEY;
+  if (!expected) {
+    return false;
+  }
+
+  const header = request.headers.get('Authorization') ?? request.headers.get('authorization') ?? '';
+  return header === `Bearer ${expected}`;
+};
+
+const errorJson = (message: string, status = 500, details?: Record<string, unknown>) =>
+  json(
+    {
+      ok: false,
+      error: message,
+      ...(details ? { details } : {})
+    },
+    status
+  );
 
 const exchangeCode = async (platform: PlatformName, env: Env, code: string) => {
   const config = baseUrlFor(platform, env);
@@ -366,6 +503,111 @@ const handleDeletion = async (request: Request, env: Env) => {
   return json({ ok: true, message: 'Deletion request accepted.' });
 };
 
+const metaAccounts = async (request: Request, env: Env) => {
+  if (!requireBotAuth(request, env)) {
+    return errorJson('unauthorized', 401);
+  }
+
+  try {
+    const url = new URL(request.url);
+    const connectionId = Number(url.searchParams.get('connection_id'));
+
+    if (!Number.isFinite(connectionId) || connectionId <= 0) {
+      return errorJson('missing or invalid connection_id', 400);
+    }
+
+    if (!env.META_APP_ID || !env.META_APP_SECRET) {
+      return errorJson('Missing Meta app configuration', 500);
+    }
+
+    const connection = await getConnectionById(env, connectionId);
+    if (!connection || connection.platform !== 'meta') {
+      return json({ ok: true, connection_id: connectionId, pages: [], source: 'me_accounts' });
+    }
+
+    const primaryResponse = await graphGet('/me/accounts', connection.accessToken, {
+      fields: 'id,name,access_token,tasks,instagram_business_account{id,username,name,profile_picture_url}'
+    });
+    const primaryPages = Array.isArray(primaryResponse.data) ? primaryResponse.data : [];
+
+    if (primaryPages.length > 0) {
+      return json({
+        ok: true,
+        connection_id: connectionId,
+        pages: primaryPages,
+        source: 'me_accounts'
+      });
+    }
+
+    const debugTokenResponse = (await graphGet('/debug_token', `${env.META_APP_ID}|${env.META_APP_SECRET}`, {
+      input_token: connection.accessToken
+    })) as MetaDebugTokenResponse;
+
+    const targetIds = getMetaTargetPageIdsFromDebugToken(debugTokenResponse);
+    const pages: MetaPageResponse[] = [];
+
+    for (const pageId of targetIds) {
+      try {
+        const page = await fetchMetaPageById(pageId, connection.accessToken);
+        if (page?.id) {
+          pages.push(page);
+        }
+      } catch {
+        continue;
+      }
+    }
+
+    return json({
+      ok: true,
+      connection_id: connectionId,
+      pages,
+      source: 'debug_token_target_ids'
+    });
+  } catch (error) {
+    return errorJson('Failed to load Meta pages.', 500, {
+      reason: error instanceof Error ? error.message : 'unknown_error'
+    });
+  }
+};
+
+const metaDebug = async (request: Request, env: Env) => {
+  if (!requireBotAuth(request, env)) {
+    return errorJson('unauthorized', 401);
+  }
+
+  try {
+    const url = new URL(request.url);
+    const connectionId = Number(url.searchParams.get('connection_id'));
+
+    if (!Number.isFinite(connectionId) || connectionId <= 0) {
+      return errorJson('missing or invalid connection_id', 400);
+    }
+
+    if (!env.META_APP_ID || !env.META_APP_SECRET) {
+      return errorJson('Missing Meta app configuration', 500);
+    }
+
+    const connection = await getConnectionById(env, connectionId);
+    if (!connection || connection.platform !== 'meta') {
+      return json({ ok: true, connection_id: connectionId, debug: null });
+    }
+
+    const debug = await graphGet('/debug_token', `${env.META_APP_ID}|${env.META_APP_SECRET}`, {
+      input_token: connection.accessToken
+    });
+
+    return json({
+      ok: true,
+      connection_id: connectionId,
+      debug
+    });
+  } catch (error) {
+    return errorJson('Failed to load Meta debug data.', 500, {
+      reason: error instanceof Error ? error.message : 'unknown_error'
+    });
+  }
+};
+
 export default {
   async fetch(request: Request, env: Env): Promise<Response> {
     const url = new URL(request.url);
@@ -393,6 +635,12 @@ export default {
     }
     if (pathname === '/api/meta/status') {
       return handleStatus('meta', env);
+    }
+    if (pathname === '/api/meta/accounts') {
+      return metaAccounts(request, env);
+    }
+    if (pathname === '/api/meta/debug') {
+      return metaDebug(request, env);
     }
 
     if (pathname === '/api/data-deletion') {
