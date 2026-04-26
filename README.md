@@ -1,14 +1,14 @@
 # SPG Utils
 
-Production-ready foundation for `spgutils.ru`, built as a static-first Astro site with a Cloudflare Worker backend for OAuth, status, and data deletion flows.
+Production-ready foundation for `spgutils.ru`, built as a static-first Astro site with a Cloudflare Worker backend for OAuth, Telegram linking, account status, and data deletion flows.
 
 ## What this project includes
 
 - EN default public site with RU route-based localization
 - Product pages for VPN Bot and Autoposter
-- Review-ready landing, login, callback, and dashboard pages for TikTok and Meta
+- Review-ready landing pages for TikTok and Meta, plus a Telegram-first linking flow in the Worker
 - Legal pages for Privacy Policy, Terms of Service, and Data Deletion
-- Cloudflare Worker API for OAuth state, token exchange, and persistence metadata
+- Cloudflare Worker API for OAuth state, token exchange, Telegram deep links, and persistence metadata
 - SEO metadata, `robots.txt`, and `sitemap.xml`
 
 ## Tech stack
@@ -67,12 +67,12 @@ npm run build
 1. Create a separate Worker for `workers/api`.
 2. Bind the KV namespaces listed in `workers/api/wrangler.toml`.
 3. Create the D1 database and apply `workers/api/schema.sql`.
-4. Set all OAuth secrets as Worker secrets, not in the repository.
+4. Set all Worker secrets in Cloudflare, not in the repository.
 5. Deploy with `npm run worker:deploy`.
 
 ## Environment variables
 
-See `.env.example` for the full list. Do not store secrets in the repository.
+See `.env.example` for frontend values and `workers/api/.env.example` for Worker values. Do not store secrets in the repository.
 
 ## Manual setup required
 

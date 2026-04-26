@@ -8,6 +8,7 @@ interface KVNamespace {
 
 interface D1PreparedStatement {
   bind(...values: unknown[]): D1PreparedStatement;
+  all<T = unknown>(): Promise<{ results?: T[] }>;
   run<T = unknown>(): Promise<T>;
   first<T = unknown>(): Promise<T | null>;
 }

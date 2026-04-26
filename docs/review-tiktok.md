@@ -19,8 +19,9 @@
 
 ## Backend checks
 
+- Telegram bot should start the linking flow through `POST /api/link/start`
 - `/api/oauth/tiktok/start` starts OAuth from the Worker
-- Worker callback should finish on the server and return to `/review?tiktok=success`
+- Worker callback should finish on the server and return to the Telegram deep link when a `link_token` is present
 - `state` is stored server-side in KV and expires quickly
 
 ## Before submission

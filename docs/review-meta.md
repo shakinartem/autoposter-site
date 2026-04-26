@@ -19,8 +19,9 @@
 
 ## Backend checks
 
+- Telegram bot should start the linking flow through `POST /api/link/start`
 - `/api/oauth/meta/start` starts OAuth from the Worker
-- Worker callback should finish on the server and return to `/review?meta=success`
+- Worker callback should finish on the server and return to the Telegram deep link when a `link_token` is present
 - If configured, the Worker can upgrade to a longer-lived token server-side
 
 ## Before submission
