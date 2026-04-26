@@ -73,13 +73,13 @@ const home: PageBundle = {
     spotlights: [
       {
         title: 'TikTok review hub',
-        body: 'Public landing, login, callback, and dashboard surfaces built for app review.',
+        body: 'Public review and testing surface with Telegram-first account linking and server-side OAuth handling.',
         href: '/review',
         label: 'Open review'
       },
       {
         title: 'Meta review hub',
-        body: 'Public landing, login, callback, and dashboard surfaces built for Meta review.',
+        body: 'Public review and testing surface with Telegram-first account linking and server-side OAuth handling.',
         href: '/review',
         label: 'Open review'
       }
@@ -111,7 +111,7 @@ const home: PageBundle = {
       { title: 'VPN Bot', body: 'Subscription-style utility product with a direct value proposition.', href: '/products/vpn-bot', label: 'Open product page' },
       { title: 'Autoposter', body: 'Private beta product concept for scheduling and multi-platform publishing.', href: '/products/autoposter', label: 'Request access' },
       { title: 'Review', body: 'A single OAuth entry point for TikTok and Meta review submission.', href: '/review', label: 'Open review page' },
-      { title: 'Review docs', body: 'Public landing, login, callback, and dashboard context live behind one entry page.', href: '/review', label: 'Open review page' }
+      { title: 'Review docs', body: 'Public review, testing, and legal context live behind one entry page.', href: '/review', label: 'Open review page' }
     ],
     footerNote: 'No client secret is ever placed in the frontend. All sensitive exchanges happen in the Worker.'
   },
@@ -131,13 +131,13 @@ const home: PageBundle = {
     spotlights: [
       {
         title: 'TikTok review hub',
-        body: 'Публичные landing, login, callback и dashboard-страницы для review.',
+        body: 'Публичная review/testing поверхность с Telegram-first linking и server-side OAuth.',
         href: '/ru/review',
         label: 'Открыть review'
       },
       {
         title: 'Meta review hub',
-        body: 'Публичные landing, login, callback и dashboard-страницы для Meta review.',
+        body: 'Публичная review/testing поверхность с Telegram-first linking и server-side OAuth.',
         href: '/ru/review',
         label: 'Открыть review'
       }
@@ -169,7 +169,7 @@ const home: PageBundle = {
       { title: 'VPN Bot', body: 'Подписочная utility-утилита с чёткой ценностью.', href: '/ru/products/vpn-bot', label: 'Открыть страницу' },
       { title: 'Autoposter', body: 'Private beta для планирования и кросс-постинга.', href: '/ru/products/autoposter', label: 'Request access' },
       { title: 'Review', body: 'Единая OAuth-точка входа для TikTok и Meta review.', href: '/ru/review', label: 'Открыть review page' },
-      { title: 'Review docs', body: 'Публичные landing, login, callback и dashboard сведения собраны на одной странице.', href: '/ru/review', label: 'Открыть review page' }
+      { title: 'Review docs', body: 'Публичные review, testing и legal сведения собраны на одной странице.', href: '/ru/review', label: 'Открыть review page' }
     ],
     footerNote: 'Client secret никогда не попадает во frontend. Все чувствительные обмены проходят в Worker.'
   }
@@ -879,7 +879,7 @@ const deletion: PageBundle = {
 const reviewTikTok: PageBundle = {
   en: {
     title: 'TikTok Review | SPG Utils',
-    description: 'Review-ready TikTok landing page with login, callback, dashboard, and queue state.',
+    description: 'Review-ready TikTok landing page with Telegram-first linking, OAuth flow, and safe status state.',
     hero: {
       eyebrow: 'TikTok review',
       title: 'Show the exact use case, login entry point, callback, and connected dashboard.',
@@ -904,7 +904,7 @@ const reviewTikTok: PageBundle = {
   },
   ru: {
     title: 'TikTok Review | SPG Utils',
-    description: 'Review-ready TikTok landing page with login, callback, dashboard, and queue state.',
+    description: 'Review-ready TikTok landing page with Telegram-first linking, OAuth flow, and safe status state.',
     hero: {
       eyebrow: 'TikTok review',
       title: 'Показать use case, login entry point, callback и connected dashboard.',
@@ -1031,7 +1031,7 @@ const reviewTikTokDashboard: PageBundle = {
 const reviewMeta: PageBundle = {
   en: {
     title: 'Meta Review | SPG Utils',
-    description: 'Review-ready Meta landing page with login, callback, dashboard, and permissions explanation.',
+    description: 'Review-ready Meta landing page with Telegram-first linking, OAuth flow, and permissions explanation.',
     hero: {
       eyebrow: 'Meta review',
       title: 'Explain the use case, permissions, and connected dashboard clearly.',
@@ -1060,7 +1060,7 @@ const reviewMeta: PageBundle = {
   },
   ru: {
     title: 'Meta Review | SPG Utils',
-    description: 'Review-ready Meta landing page with login, callback, dashboard, and permissions explanation.',
+    description: 'Review-ready Meta landing page with Telegram-first linking, OAuth flow, and permissions explanation.',
     hero: {
       eyebrow: 'Meta review',
       title: 'Чётко объяснить use case, permissions и connected dashboard.',
