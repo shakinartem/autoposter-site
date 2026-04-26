@@ -252,6 +252,31 @@ const fetchMetaPageById = async (pageId: string, accessToken: string) => {
   return data as MetaPageResponse;
 };
 
+const getMetaConnectionAndPageId = async (request: Request, env: Env) => {
+  const url = new URL(request.url);
+  const connectionId = Number(url.searchParams.get('connection_id'));
+  const pageId = url.searchParams.get('id');
+
+  if (!Number.isFinite(connectionId) || connectionId <= 0) {
+    return { error: errorJson('missing or invalid connection_id', 400) as Response };
+  }
+
+  if (!pageId) {
+    return { error: errorJson('missing page id', 400) as Response };
+  }
+
+  if (!env.META_APP_ID || !env.META_APP_SECRET) {
+    return { error: errorJson('Missing Meta app configuration', 500) as Response };
+  }
+
+  const connection = await getConnectionById(env, connectionId);
+  if (!connection || connection.platform !== 'meta') {
+    return { error: errorJson('connection not found', 404) as Response };
+  }
+
+  return { connectionId, pageId, connection };
+};
+
 const requireBotAuth = (request: Request, env: Env) => {
   const expected = env.BOT_API_KEY;
   if (!expected) {
@@ -509,21 +534,11 @@ const metaAccounts = async (request: Request, env: Env) => {
   }
 
   try {
-    const url = new URL(request.url);
-    const connectionId = Number(url.searchParams.get('connection_id'));
-
-    if (!Number.isFinite(connectionId) || connectionId <= 0) {
-      return errorJson('missing or invalid connection_id', 400);
+    const context = await getMetaConnectionAndPageId(request, env).catch((result) => result);
+    if ('error' in context) {
+      return context.error;
     }
-
-    if (!env.META_APP_ID || !env.META_APP_SECRET) {
-      return errorJson('Missing Meta app configuration', 500);
-    }
-
-    const connection = await getConnectionById(env, connectionId);
-    if (!connection || connection.platform !== 'meta') {
-      return json({ ok: true, connection_id: connectionId, pages: [], source: 'me_accounts' });
-    }
+    const { connectionId, connection } = context;
 
     const primaryResponse = await graphGet('/me/accounts', connection.accessToken, {
       fields: 'id,name,access_token,tasks,instagram_business_account{id,username,name,profile_picture_url}'
@@ -608,6 +623,33 @@ const metaDebug = async (request: Request, env: Env) => {
   }
 };
 
+const metaPage = async (request: Request, env: Env) => {
+  if (!requireBotAuth(request, env)) {
+    return errorJson('unauthorized', 401);
+  }
+
+  try {
+    const context = await getMetaConnectionAndPageId(request, env).catch((result) => result);
+    if ('error' in context) {
+      return context.error;
+    }
+
+    const { connectionId, pageId, connection } = context;
+    const page = await fetchMetaPageById(pageId, connection.accessToken);
+
+    return json({
+      ok: true,
+      connection_id: connectionId,
+      page,
+      source: 'page_by_id'
+    });
+  } catch (error) {
+    return errorJson('Failed to load Meta page.', 500, {
+      reason: error instanceof Error ? error.message : 'unknown_error'
+    });
+  }
+};
+
 export default {
   async fetch(request: Request, env: Env): Promise<Response> {
     const url = new URL(request.url);
@@ -641,6 +683,9 @@ export default {
     }
     if (pathname === '/api/meta/debug') {
       return metaDebug(request, env);
+    }
+    if (pathname === '/api/meta/page') {
+      return metaPage(request, env);
     }
 
     if (pathname === '/api/data-deletion') {
